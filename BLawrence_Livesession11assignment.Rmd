@@ -1,0 +1,101 @@
+---
+title: "BLawrence_LiveSession11Assignment"
+author: "Brandon Lawrence"
+date: "November 11, 2016"
+output: html_document
+---
+
+##Live Session Unit 11 Assignment
+
+Reference Data Set - data(visitors)
+
+####a)	Plot the time series. Can you identify seasonal fluctuations and/or a trend? 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(data.table)
+library(dplyr)
+library(plyr)
+library(fpp)
+
+
+data(visitors)
+visitordata <- visitors
+
+#plot data set
+
+plot(visitors)
+```
+
+This data has an upward trend with a strong seasonal variation and increasing volatility.
+
+####b)	Use a classical decomposition to calculate the trend-cycle and seasonal indices.
+
+```{r, echo=FALSE}
+
+#decompose and plot data set
+
+visitdecomp <- decompose(visitordata)
+plot(visitdecomp)
+```
+
+####c)	Do the results support the graphical interpretation from part (a)? 
+
+Yes, the trend is positive, the seasonal pattern is strong, and the random component become markedly more erratic over time.
+
+####d)	Compute and plot the seasonally adjusted data. 
+
+```{r, echo=FALSE}
+
+#apply seasonal adjustment and plot the decomposed data set
+
+VisitSeasadj <- seasadj(visitdecomp)
+plot(VisitSeasadj)
+```
+
+####e)	Change one observation to be an outlier (e.g., add 500 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier? 
+
+```{r, echo=FALSE}
+
+#create an outlier at position 55 in data set - plot decomposition
+
+vseasadjoutlier <- ts(c(VisitSeasadj[1:54],VisitSeasadj[55]+500,VisitSeasadj[56:240]
+),start=c(1985,6),frequency=12)
+
+plot(vseasadjoutlier)
+
+decompSAO <- decompose(vseasadjoutlier)
+
+plot(decompSAO)
+
+```
+
+The outlier does not affect the overall interpretation of the original plot or the decomposition. The outlier is dealt with as random variation rather than an overall or seasonal trend.
+
+####f)	Does it make any difference if the outlier is near the end rather than in the middle of the time series? 
+
+```{r, echo=FALSE}
+
+#create an outlier at position 236 in data set - plot decomposition
+
+vseasadjoutlierend <- ts(c(VisitSeasadj[1:235],VisitSeasadj[236]+500,VisitSeasadj[237:240]
+),start=c(1985,6),frequency=12)
+
+plot(vseasadjoutlierend)
+
+decompSAOend <- decompose(vseasadjoutlierend)
+
+plot(decompSAOend)
+```
+
+The decomposition weights the later outlier on the trend rather than random variation, presumably because there is not enough data to prove that the outlier is in fact an outlier and not a change to the trend.
+
+####g)	Use STL to decompose the series. 
+
+```{r, echo=FALSE}
+#create and plot STL decomposition of data set
+
+visitstl <- stl(visitordata, s.window = 5)
+plot(visitstl)
+```
+
+
